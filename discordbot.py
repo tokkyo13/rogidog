@@ -58,8 +58,6 @@ async def on_message(message):
     # 作ったオーディオソースを再生
     message.guild.voice_client.play(audio_source)
     
-    await message.channel.send("hello")
-    
     
 # 誰かの voice state が変化したとき実行
 @client.event
