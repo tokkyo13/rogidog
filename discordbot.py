@@ -1,9 +1,7 @@
 import os
 import time
 import discord
-from discord.ext import commands
 from gtts import gTTS
-import traceback
 
 
 # 読み上げ用 channel id を設定
@@ -19,7 +17,6 @@ SPEAK_CHANNEL_ID = 697839608565858357
 
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='/')
 
 
 # gTTS
@@ -27,7 +24,7 @@ bot = commands.Bot(command_prefix='/')
 # google translate の内部 API にタダ乗りする音声合成ライブラリ
 def google_tts(text: str) -> None:
     tts = gTTS(text, lang="ja")
-    tts.save("message.mp3")
+    tts.save("/tmp/message.mp3")
 
 # メッセージが送信されたら実行
 @client.event
@@ -56,24 +53,11 @@ async def on_message(message):
     # gTTS でメッセージのテキストから音声ファイルを作り
     google_tts(message_casted)
     # ffmpeg で AudioSource に変換
-    audio_source = discord.FFmpegPCMAudio("message.mp3")
+    audio_source = discord.FFmpegPCMAudio("/tmp/message.mp3")
 
     # 作ったオーディオソースを再生
     message.guild.voice_client.play(audio_source)
-    
-    
-@bot.event
-async def on_command_error(ctx, error):
-    orig_error = getattr(error, "original", error)
-    error_msg = ''.join(traceback.TracebackException.from_exception(orig_error).format())
-    await ctx.send(error_msg)
-
-
-@bot.command()
-async def ping(ctx):
-    await ctx.send('pong')
 
 
 token = os.getenv('DISCORD_BOT_TOKEN')
 client.run(token)
-bot.run(token)
