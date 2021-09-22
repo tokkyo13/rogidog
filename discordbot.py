@@ -26,6 +26,7 @@ def google_tts(text: str) -> None:
     tts = gTTS(text, lang="ja")
     tts.save("/tmp/message.mp3")
 
+
 # メッセージが送信されたら実行
 @client.event
 async def on_message(message):
@@ -57,8 +58,8 @@ async def on_message(message):
 
     # 作ったオーディオソースを再生
     message.guild.voice_client.play(audio_source)
-    
-    
+
+
 # 誰かの voice state が変化したとき実行
 @client.event
 async def on_voice_state_update(member, before, after):
@@ -71,5 +72,5 @@ async def on_voice_state_update(member, before, after):
         await member.guild.voice_client.disconnect()
 
 
-token = os.getenv('DISCORD_BOT_TOKEN')
+token = os.getenv("DISCORD_BOT_TOKEN")
 client.run(token)
