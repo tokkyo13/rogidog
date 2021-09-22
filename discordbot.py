@@ -51,7 +51,7 @@ async def on_message(message):
         continue
 
     # gTTS でメッセージのテキストから音声ファイルを作り
-    google_tts(message_casted)
+    google_tts(message.content)
     # ffmpeg で AudioSource に変換
     audio_source = discord.FFmpegPCMAudio("/tmp/message.mp3")
 
