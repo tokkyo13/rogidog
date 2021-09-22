@@ -1,5 +1,6 @@
 import os
 import time
+import unicodedata
 import discord
 from gtts import gTTS
 
@@ -19,12 +20,21 @@ SPEAK_CHANNEL_ID = 697839608565858357
 client = discord.Client()
 
 
+# 日本語か判定
+def is_japanese(string: str):
+    for character in string:
+        name = unicodedata.name(character)
+        if "CJK UNIFIED" in name or "HIRAGANA" in name or "KATAKANA" in name:
+            return True
+    return False
+
+
 # gTTS
 # https://github.com/pndurette/gTTS
 # google translate の内部 API にタダ乗りする音声合成ライブラリ
 def google_tts(text: str) -> None:
-    tts = gTTS(text, lang="ja")
-    tts.save("/tmp/message.mp3")
+    tts = gTTS(text, lang="ja") if is_japanese(text) else gTTS(text, lang="en")
+    tts.save("message.mp3")
 
 
 # メッセージが送信されたら実行
@@ -54,7 +64,7 @@ async def on_message(message):
     # gTTS でメッセージのテキストから音声ファイルを作り
     google_tts(message.content)
     # ffmpeg で AudioSource に変換
-    audio_source = discord.FFmpegPCMAudio("/tmp/message.mp3")
+    audio_source = discord.FFmpegPCMAudio("message.mp3")
 
     # 作ったオーディオソースを再生
     message.guild.voice_client.play(audio_source)
