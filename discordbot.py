@@ -57,6 +57,20 @@ async def on_message(message):
 
     # 作ったオーディオソースを再生
     message.guild.voice_client.play(audio_source)
+    
+    await message.channel.send("hello")
+    
+    
+# 誰かの voice state が変化したとき実行
+@client.event
+async def on_voice_state_update(member, before, after):
+    # ロギ犬が voice client に接続してなかったら無視
+    if member.guild.voice_client is None:
+        return
+
+    # メンバーが一人しかいなければ抜ける
+    if len(member.guild.get_channel(SPEAK_CHANNEL_ID).members) == 1:
+        await member.guild.voice_client.disconnect()
 
 
 token = os.getenv('DISCORD_BOT_TOKEN')
