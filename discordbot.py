@@ -54,26 +54,20 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # 発言者がボイスチャンネルでミュート状態でなければエラーメッセージ
+    # 発言者がボイスチャンネルでミュート状態でなければ無視
     if message.author.voice is None:
         return
 
-    # ロギ犬を追い出すコマンドが送信されたら
-    if message.content == "/bye":
-        # ボイスクライアントに接続していたら
-        if message.guild.voice_client is not None:
-            # イヤダー！まだ死にたくないロギ！
-            audio_source = discord.FFmpegPCMAudio("bye.mp3")
-            message.guild.voice_client.play(audio_source)
-
-            # 言い終わるまで待つ
-            while message.guild.voice_client.is_playing():
-                time.sleep(0.1)
-                continue
-
-            # 切断する
+    # コマンドは voiceclient に接続している場合だけ受け付ける
+    if message.guild.voice_client is not None:
+        # ロギ犬を追い出すコマンドが送信されたら
+        if message.content == "/bye":
             await message.guild.voice_client.disconnect()
-        return
+            return
+        # 再生停止コマンドが送信されたら
+        if message.content == "/stop" and message.guild.voice_client.is_playing():
+            message.guild.voice_client.stop()
+            return
 
     # メッセージの改行，URL，カスタム絵文字を空白に変換
     # \n
@@ -104,7 +98,9 @@ async def on_message(message):
     except AssertionError:
         return
     # ffmpeg で AudioSource に変換
-    audio_source = discord.FFmpegPCMAudio("/tmp/message.mp3")
+    audio_source = discord.FFmpegPCMAudio(
+        "/tmp/message.mp3", options="-vf setpts=PTS/1.75 -af atempo=1.75"
+    )
 
     # 作ったオーディオソースを再生
     message.guild.voice_client.play(audio_source)
