@@ -54,20 +54,23 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # 発言者がボイスチャンネルでミュート状態でなければ無視
+    # 発言者がボイスチャンネルにいなければ無視
     if message.author.voice is None:
         return
 
-    # コマンドは voiceclient に接続している場合だけ受け付ける
-    if message.guild.voice_client is not None:
-        # ロギ犬を追い出すコマンドが送信されたら
-        if message.content == "/bye":
+    # ロギ犬を追い出すコマンドが送信されたら
+    if message.content == "/bye":
+        if message.guild.voice_client is not None:
             await message.guild.voice_client.disconnect()
-            return
-        # 再生停止コマンドが送信されたら
-        if message.content == "/stop" and message.guild.voice_client.is_playing():
+        return
+    # 再生停止コマンドが送信されたら
+    if message.content == "/stop":
+        if (
+            message.guild.voice_client is not None
+            and message.guild.voice_client.is_playing()
+        ):
             message.guild.voice_client.stop()
-            return
+        return
 
     # メッセージの改行，URL，カスタム絵文字を空白に変換
     # \n
